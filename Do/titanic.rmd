@@ -1,0 +1,97 @@
+---
+title: "Causal Inference homework 2"
+author: "Barth Bikoi"
+date: "5/15/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+library(tidyverse)
+library(dplyr)
+library(forcats)
+library(MASS)
+library(dummies)
+library(sjPlot)
+library(sjmisc)
+library(sjlabelled)
+
+```
+
+```{r, message = FALSE}
+setwd("C:/Users/barth/OneDrive/Desktop/titanic/Data")
+library(haven)
+titanic <- read_dta("titanic.dta")
+
+```
+
+```{r}
+sapply(titanic, class)
+class(titanic)
+as_tibble(titanic)
+
+titanic<- titanic %>%
+  mutate(sex = as_factor(sex), class = as_factor(class), 
+         survived = as_factor(survived), age = as_factor(age))
+
+
+glimpse(titanic)
+
+contrasts(titanic$survived) #this indicates women are coded as 0 but we want them to be 1
+
+#modify female level to 1
+
+titanic$first_class <- ifelse(titanic$class == "1st class", 1, 0)
+
+titanic$female <- ifelse(titanic$sex == "women", 1, 0)
+
+titanic$survival <- ifelse(titanic$survived == "yes", 1, 0)
+
+
+
+# 7
+
+## d
+ols_1 <- lm(survival ~ first_class, titanic) #8 equation 3
+
+ols_2 <- rlm(survival ~ first_class, titanic)
+
+
+## f 
+
+titanic$ age_dummy <- ifelse(titanic$age == "adults", 1, 0)
+titanic_dummies <- titanic[, -c(1,2,3,4)]
+
+?cov()
+cov(titanic_dummies)
+
+## g
+ols_3 <- lm(survival ~ first_class+age+female, titanic) #8 equation 1
+
+ols_4 <- rlm (survival ~ first_class+age+female, titanic)
+
+## h
+
+
+tab_model(ols_3, ols_4, show.se = TRUE, show.ci = FALSE )
+
+
+#8 equation 2
+ols_5 <- lm(first_class ~ age + female, titanic) #8 equation 2
+
+#Regression Anatomy Table
+
+tab_model(ols_4, ols_5, ols_1, show.ci = FALSE, show.se = TRUE)
+
+```
+
+
+
+
+
+
+
+
