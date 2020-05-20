@@ -1,0 +1,103 @@
+---
+title: "Homework 3"
+author: "Barth Bikoi"
+date: "5/19/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+
+setwd("C:/Users/barth/OneDrive/Desktop/titanic/homework 3/data")
+install.packages("readstata13")
+library(readstata13)
+library(MASS)
+library(tidyverse)
+```
+
+```{r, message=FALSE}
+
+ hiv<- read.dta13("thornton_hiv.dta")
+
+```
+
+
+```{r,message=FALSE}
+
+attach(hiv)
+
+
+ols_hiv <- lm(got~any+male, hiv)
+coefficients(ols_hiv)
+
+
+```
+
+
+
+
+```{r}
+
+#Creating dummy vector
+
+
+#Randomizing Non-NA values with 0 and 1
+hiv$any[is.na(hiv$any)==FALSE] <- round(runif(n=sum(!is.na(hiv$any)),min=0,max=1),0)
+
+hiv$any <- as.numeric(hiv$any)
+
+class(hiv$any)
+
+#Regression and P value
+
+#Enter no. of simulations, num
+num =10000
+
+#create dataframe to store p value
+output <- data.frame(matrix(nrow=num,ncol=2))
+colnames(output) <- c("coefficient_any","P_value_any")
+
+
+#Run regression and store P values and coefficients
+for (i in 1:num)
+{
+  hiv$any[is.na(hiv$any)==FALSE] <- 
+  round(runif(n=sum(!is.na(hiv$any)),min=0,max=1),0)
+  model <- lm(got~any+male, data=hiv)
+  temp <- summary(model)
+  output$coefficient_any[i] <- temp$coefficients[2,1] 
+  output$P_value_any[i]<- temp$coefficients[2,4] 
+ 
+}
+
+hist(output$coefficient_any, breaks = 100)
+
+
+T_calculated <- 0.45
+
+#exact p-value
+
+exact_pvalue <- sum(output$coefficient_any[output$coefficient_any>=T_calculated])/num
+
+P_value_avg <- sum(output$P_value_any[output$P_value_any>=P_calculated])/num
+
+
+hist()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
